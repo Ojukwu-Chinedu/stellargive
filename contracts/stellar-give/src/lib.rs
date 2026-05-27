@@ -58,6 +58,7 @@ pub enum ContractError {
     TokenTransferFailed = 12,
     NotInitialized = 13,
     AlreadyInitialized = 14,
+    InvalidDuration = 15,
 }
 
 fn next_id_key() -> Symbol {
@@ -76,6 +77,11 @@ fn admin_key() -> Symbol {
 const FEE_BPS: i128 = 100;
 /// Basis-point denominator (10_000 = 100%).
 const FEE_DENOMINATOR: i128 = 10_000;
+/// Minimum permitted donation amount, in stroops (0.1 token with 7 decimals).
+const MIN_DONATION: i128 = 1_000_000;
+/// Maximum campaign lifetime: one year. This keeps campaign state timely and
+/// avoids indefinite ledger growth from stale fundraising records.
+const MAX_DURATION: u64 = 31_536_000;
 
 fn read_admin(env: &Env) -> Result<Address, ContractError> {
     env.storage()
@@ -269,8 +275,14 @@ impl StellarGiveContract {
         if target_amount <= 0 {
             return Err(ContractError::InvalidAmount);
         }
-        if deadline <= env.ledger().timestamp() {
+        let now = env.ledger().timestamp();
+        if deadline <= now {
             return Err(ContractError::InvalidDeadline);
+        }
+        // Campaigns longer than one year are rejected so stale campaigns do
+        // not linger indefinitely and increase ledger storage pressure.
+        if deadline - now > MAX_DURATION {
+            return Err(ContractError::InvalidDuration);
         }
         validate_token_contract(&env, &accepted_token)?;
 
@@ -340,7 +352,7 @@ impl StellarGiveContract {
         amount: i128,
     ) -> Result<(), ContractError> {
         donor.require_auth();
-        if amount <= 0 {
+        if amount < MIN_DONATION {
             return Err(ContractError::InvalidAmount);
         }
 
@@ -583,6 +595,36 @@ mod tests {
     }
 
     #[test]
+    fn create_campaign_enforces_max_duration() {
+        let (env, client, creator, beneficiary, _donor, _admin, token_client, _) = setup();
+        set_timestamp(&env, 1_000);
+
+        let mut bens = Vec::new(&env);
+        bens.push_back((beneficiary.clone(), 10_000_u32));
+
+        // Exactly one year is accepted; only longer campaigns are rejected.
+        let id = client.create_campaign(
+            &creator,
+            &bens,
+            &String::from_str(&env, "One Year Relief"),
+            &500_000,
+            &(1_000 + MAX_DURATION),
+            &token_client.address,
+        );
+        assert_eq!(id, 1);
+
+        let result = client.try_create_campaign(
+            &creator,
+            &bens,
+            &String::from_str(&env, "Too Long Relief"),
+            &500_000,
+            &(1_000 + MAX_DURATION + 1),
+            &token_client.address,
+        );
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn donate_updates_raised_and_status() {
         let (env, client, creator, beneficiary, donor, _admin, token_client, _) = setup();
         set_timestamp(&env, 5_000);
@@ -607,6 +649,26 @@ mod tests {
         let campaign_after_second = client.get_campaign(&campaign_id);
         assert_eq!(campaign_after_second.raised_amount, 100_000);
         assert_eq!(campaign_after_second.status, CampaignStatus::Funded);
+    }
+
+    #[test]
+    fn donate_rejects_sub_minimum_amount() {
+        let (env, client, creator, beneficiary, donor, _admin, token_client, _) = setup();
+        set_timestamp(&env, 1_000);
+
+        let mut bens = Vec::new(&env);
+        bens.push_back((beneficiary.clone(), 10_000_u32));
+        let campaign_id = client.create_campaign(
+            &creator,
+            &bens,
+            &String::from_str(&env, "Seed Relief"),
+            &100_000,
+            &10_000,
+            &token_client.address,
+        );
+
+        let result = client.try_donate(&donor, &campaign_id, &999_999);
+        assert!(result.is_err());
     }
 
     #[test]
