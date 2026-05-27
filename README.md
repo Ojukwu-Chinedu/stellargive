@@ -42,6 +42,8 @@ docs/                    Security, deployment, architecture, contributing docs
 
 ## Quick Start (3 Steps)
 
+> **New Contributors:** Please see our [Detailed Setup Guide](./docs/SETUP.md) for comprehensive instructions on setting up your environment for macOS, Linux, and Windows (WSL2).
+
 1. **Install dependencies and set env files**
    ```bash
    cp .env.example .env
@@ -87,10 +89,15 @@ docs/                    Security, deployment, architecture, contributing docs
 
 ## Documentation
 
+- Setup Guide: [`docs/SETUP.md`](./docs/SETUP.md)
 - Architecture: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 - Security: [`docs/SECURITY.md`](./docs/SECURITY.md)
 - Deployment: [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md)
 - Contributing: [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md)
+
+## Contributor Onboarding
+
+Welcome! If you are new to the project, please start by reading our [Detailed Setup Guide](./docs/SETUP.md) which will walk you through installing all necessary dependencies (Rust, Soroban CLI, Node.js) across macOS, Linux, and Windows. Once your environment is set up, check out [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) for our workflow guidelines.
 
 ## 👥 Contributors
 
