@@ -213,6 +213,7 @@ export async function getEvents(limit = 20) {
     return {
       id: event.id,
       ledger: event.ledger,
+      createdAt: event.ledgerClosedAt,
       topic: topics[1], // e.g., 'created', 'received', 'claimed'
       data: value,
     };
