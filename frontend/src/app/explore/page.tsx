@@ -37,6 +37,13 @@ export default function ExplorePage() {
     setStatusFilter("active");
   }, [searchParams]);
 
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams.toString());
+    next.set("status", statusFilter);
+    const query = next.toString();
+    router.replace(query ? `/explore?${query}` : "/explore", { scroll: false });
+  }, [router, searchParams, statusFilter]);
+
   const filtered = useMemo(() => {
     const byStatus = campaigns.filter((campaign) => {
       if (statusFilter === "all") return true;
