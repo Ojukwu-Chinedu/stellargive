@@ -29,14 +29,22 @@ export default function ExplorePage() {
   }, [searchTerm]);
 
   const filtered = useMemo(() => {
+    const byStatus = campaigns.filter((campaign) => {
+      if (statusFilter === "all") return true;
+      if (statusFilter === "active") {
+        return campaign.status === "Active" && campaign.raised_amount < campaign.target_amount;
+      }
+      return campaign.raised_amount >= campaign.target_amount || campaign.status === "Funded";
+    });
+
     const term = debouncedSearch.trim().toLowerCase();
-    if (!term) return campaigns;
-    return campaigns.filter(
+    if (!term) return byStatus;
+    return byStatus.filter(
       (c) =>
         c.title.toLowerCase().includes(term) ||
         c.creator.toLowerCase().includes(term)
     );
-  }, [campaigns, debouncedSearch]);
+  }, [campaigns, debouncedSearch, statusFilter]);
 
   return (
     <div className="flex flex-col min-h-screen">
