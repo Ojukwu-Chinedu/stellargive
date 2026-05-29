@@ -145,10 +145,10 @@ export function useClaimFunds() {
   });
 }
 
-export function useEvents() {
+export function useEvents(limit = 20) {
   return useQuery({
-    queryKey: ["events"],
-    queryFn: () => getEvents(),
+    queryKey: ["events", limit],
+    queryFn: () => getEvents(limit),
     refetchInterval: 5000,
   });
 }

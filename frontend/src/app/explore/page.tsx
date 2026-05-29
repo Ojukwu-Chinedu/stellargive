@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { CampaignCard } from "@/components/CampaignCard";
@@ -11,7 +11,7 @@ import { Loader2, Search, Compass } from "lucide-react";
 
 const PAGE_SIZE = 9;
 
-export default function ExplorePage() {
+function ExploreContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [limit, setLimit] = useState(PAGE_SIZE);
@@ -173,5 +173,15 @@ export default function ExplorePage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ExplorePage() {
+  // useSearchParams (used in ExploreContent) requires a Suspense boundary above it
+  // so Next.js can statically render the route without bailing out of CSR.
+  return (
+    <Suspense>
+      <ExploreContent />
+    </Suspense>
   );
 }

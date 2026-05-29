@@ -31,6 +31,24 @@ export function Navbar() {
           >
             Explore
           </Link>
+          <Link
+            href="/activity"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Activity
+          </Link>
+          <Link
+            href="/profile"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            My Campaigns
+          </Link>
+          <Link
+            href="/faq"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            FAQ
+          </Link>
           <CreateCampaignForm />
           <div className="h-6 w-px bg-border mx-2" />
           <ThemeToggle />
@@ -67,6 +85,27 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Explore
+            </Link>
+            <Link
+              href="/activity"
+              className="text-base font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Activity
+            </Link>
+            <Link
+              href="/profile"
+              className="text-base font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              My Campaigns
+            </Link>
+            <Link
+              href="/faq"
+              className="text-base font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              FAQ
             </Link>
             <CreateCampaignForm />
             <ThemeToggle />
