@@ -11,7 +11,9 @@ import {
   Keypair,
   Operation,
 } from "@stellar/stellar-sdk";
-import { signTransaction } from "@stellar/freighter-api";
+// NOTE: @stellar/freighter-api is browser-only, so it is imported lazily inside
+// submitTransaction. This keeps the read-only helpers (getCampaign, getEvents…)
+// safe to import on the server — e.g. from a route's generateMetadata.
 
 export const CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID!;
 export const RPC_URL = process.env.NEXT_PUBLIC_SOROBAN_RPC_URL!;
@@ -178,6 +180,7 @@ export async function submitTransaction(
   }
 
   const preparedTx = await server.prepareTransaction(tx);
+  const { signTransaction } = await import("@stellar/freighter-api");
   const result = await signTransaction(preparedTx.toXDR(), {
     networkPassphrase: NETWORK_PASSPHRASE,
   });

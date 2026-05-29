@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRecentCampaigns } from "@/hooks/useSoroban";
 import { CampaignCard } from "@/components/CampaignCard";
+import { CampaignSkeletonGrid } from "@/components/CampaignSkeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -37,14 +38,8 @@ export function CampaignList() {
     );
   }, [campaigns, debouncedSearchTerm]);
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-[300px] rounded-xl bg-muted animate-pulse" />
-        ))}
-      </div>
-    );
+  if (isLoading && !campaigns) {
+    return <CampaignSkeletonGrid count={6} />;
   }
 
   if (error) {

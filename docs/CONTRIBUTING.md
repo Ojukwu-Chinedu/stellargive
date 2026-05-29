@@ -154,3 +154,27 @@ A hosted Storybook URL will be added here once the team picks a host
 ## Deployment notes
 - Any testnet/mainnet rollout steps
 ```
+
+## Regenerating TypeScript contract bindings
+
+The frontend talks to the Soroban contract through generated TypeScript bindings.
+**After any change to the contract's interface, regenerate them so the frontend
+types stay in sync** (this prevents silent drift between contract and UI).
+
+Prerequisites: the [Stellar CLI](https://developers.stellar.org/docs/tools/cli)
+installed and the contract built to WASM
+(`cargo build --target wasm32-unknown-unknown --release` in `contracts/stellar-give`).
+
+```bash
+cd frontend
+npm run generate:bindings
+```
+
+This runs `stellar contract bindings typescript` against
+`contracts/stellar-give/target/wasm32-unknown-unknown/release/stellar_give.wasm`
+and writes the bindings to `frontend/src/lib/bindings/`.
+
+> The step is intentionally **not** part of `npm run build`: production/CI builds
+> of the frontend don't have the Stellar CLI or the compiled WASM available, so
+> wiring it into `build` would break those pipelines. Run it locally (or in a
+> contract-aware CI job) whenever the contract interface changes.
